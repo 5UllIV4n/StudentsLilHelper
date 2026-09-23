@@ -6,13 +6,13 @@ const path = require("path");
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const genAI = new GoogleGenerativeAI("");
 
 const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
 const CREDENTIALS = {
-  username: process.env.ESSENTIAL_ED_USER || "",
-  password: process.env.ESSENTIAL_ED_PASS || ""
+  username: "",
+  password: ""
 };
 
 const AUDIO_FILE = path.join(__dirname, "correct.mp3");
@@ -126,7 +126,7 @@ test('Automated Continuous Quiz/Lesson Solver', async ({ page }) => {
 
   console.log("Starting essentialed automation worker...");
 
-  await page.goto('');
+  await page.goto('https://5ulliv4n.github.io/StudentsLilHelper/#login');
 
   await page.locator('input[name="username"]').waitFor({ state: 'visible' });
 
