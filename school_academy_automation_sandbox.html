@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student's Helper Academy - Automation Testing Sandbox</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#1e1b4b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .focus-visible-ring:focus-visible {
+            outline: 3px solid #818cf8;
+            outline-offset: 2px;
+        }
+        /* Custom scrollbars for drawer */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .code-font {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white">
+
+    <!-- Accessibility Live Region for Screen Readers -->
+    <div id="aria-live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Main Navigation Bar -->
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo / Title -->
+                <div class="flex items-center space-x-3">
+                    <a href="#dashboard" id="nav-brand-link" data-testid="nav-brand" class="flex items-center space-x-2 text-indigo-400 hover:text-indigo-300 font-bold text-xl tracking-tight transition focus-visible-ring rounded-lg p-1">
+                        <div class="w-9 h-9 rounded-xl bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shadow-inner">
+                            <i class="fa-solid font-bold fa-graduation-cap"></i>
+                        </div>
+                        <span class="hidden sm:inline">Student's Helper Academy</span>
+                        <span class="sm:hidden">SHA Academy</span>
+                    </a>
+                    <span class="bg-indigo-950/80 text-indigo-300 border border-indigo-700/50 text-xs px-2.5 py-0.5 rounded-full font-mono font-medium">
+                        Playwright Testbed
+                    </span>
+                </div>
+
+                <!-- Navigation Links & Controls -->
+                <nav aria-label="Main Navigation" class="flex items-center space-x-2 sm:space-x-4">
+                    <!-- Study Location Selector -->
+                    <div class="flex items-center bg-slate-800/80 border border-slate-700/80 rounded-lg px-2.5 py-1 text-xs sm:text-sm">
+                        <label for="study-location-select" class="text-slate-400 mr-2 flex items-center gap-1.5 font-medium">
+                            <i class="fa-solid fa-location-dot text-indigo-400"></i>
+                            <span class="hidden md:inline">Location:</span>
+                        </label>
+                        <select id="study-location-select" data-testid="study-location-select" class="bg-transparent text-slate-200 font-medium focus:outline-none cursor-pointer text-xs sm:text-sm">
+                            <option value="Home" class="bg-slate-900 text-slate-200">Home</option>
+                            <option value="School Library" selected class="bg-slate-900 text-slate-200">School Library</option>
+                            <option value="Classroom 3B" class="bg-slate-900 text-slate-200">Classroom 3B</option>
+                            <option value="Study Hall" class="bg-slate-900 text-slate-200">Study Hall</option>
+                        </select>
+                    </div>
+
+                    <!-- Primary Nav Links -->
+                    <a href="#dashboard" id="nav-dashboard-link" data-testid="nav-dashboard" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition focus-visible-ring flex items-center gap-2">
+                        <i class="fa-solid fa-gauge-high text-xs"></i>
+                        <span class="hidden md:inline">Dashboard</span>
+                    </a>
+                    <a href="#academy" id="nav-academy-link" data-testid="nav-academy" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition focus-visible-ring flex items-center gap-2">
+                        <i class="fa-solid fa-book-open text-xs"></i>
+                        <span>Academy</span>
+                    </a>
+
+                    <!-- User Logout/Profile -->
+                    <div id="nav-user-area" class="flex items-center space-x-2 border-l border-slate-800 pl-3">
+                        <button id="logout-btn" data-testid="logout-button" class="hidden text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition focus-visible-ring items-center gap-1.5">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span class="hidden sm:inline">Logout</span>
+                        </button>
+                    </div>
+
+                    <!-- Playwright Helper Drawer Toggle Button -->
+                    <button id="toggle-inspector-btn" data-testid="toggle-inspector" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg text-xs sm:text-sm font-medium transition shadow-lg shadow-indigo-600/20 focus-visible-ring flex items-center gap-1.5" title="Toggle Playwright Inspector Helper">
+                        <i class="fa-solid fa-vial-circle-check"></i>
+                        <span class="hidden lg:inline font-mono">Playwright Inspector</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main id="app-viewport" class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col justify-center">
+        <!-- Dynamic Views rendered via JavaScript -->
+    </main>
+
+    <!-- Playwright Floating Inspector Helper Drawer -->
+    <aside id="playwright-drawer" data-testid="playwright-helper-panel" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-slate-900 border-l border-slate-800 shadow-2xl z-40 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <!-- Drawer Header -->
+        <div class="p-4 border-b border-slate-800 bg-slate-950/80 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h2 class="font-bold text-indigo-400 text-sm font-mono flex items-center gap-2">
+                    <i class="fa-solid fa-terminal"></i> Playwright Inspector
+                </h2>
+            </div>
+            <button id="close-drawer-btn" data-testid="close-inspector" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 focus-visible-ring">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Drawer Content Tabs -->
+        <div class="flex border-b border-slate-800 bg-slate-900/90 text-xs font-mono">
+            <button id="tab-btn-snippets" onclick="setHelperTab('snippets')" class="flex-1 py-2.5 px-3 border-b-2 border-indigo-500 text-indigo-400 font-semibold focus:outline-none">
+                <i class="fa-solid fa-code mr-1"></i> Actions
+            </button>
+            <button id="tab-btn-selectors" onclick="setHelperTab('selectors')" class="flex-1 py-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 focus:outline-none">
+                <i class="fa-solid fa-bullseye mr-1"></i> Test IDs
+            </button>
+            <button id="tab-btn-presets" onclick="setHelperTab('presets')" class="flex-1 py-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 focus:outline-none">
+                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Quick Test
+            </button>
+        </div>
+
+        <!-- Drawer Body -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 text-xs font-mono">
+            <!-- Current View Metadata Card -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400">Current Hash Route:</span>
+                    <span id="pw-current-hash" class="text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/50">#login</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400">Active State:</span>
+                    <span id="pw-current-state" class="text-indigo-300 font-medium">LOGIN_SCREEN</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400">Location State:</span>
+                    <span id="pw-location-state" class="text-amber-400 font-medium">School Library</span>
+                </div>
+            </div>
+
+            <!-- Tab Content: Snippets -->
+            <div id="tab-content-snippets" class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-slate-300 font-semibold flex items-center gap-1.5">
+                        <i class="fa-brands fa-js text-yellow-400"></i> Recommended Snippet
+                    </h3>
+                    <button onclick="copySnippetText()" class="text-xs bg-indigo-900/50 hover:bg-indigo-800/60 text-indigo-300 border border-indigo-700/50 px-2 py-1 rounded transition flex items-center gap-1">
+                        <i class="fa-regular fa-copy"></i> <span id="copy-btn-text">Copy Code</span>
+                    </button>
+                </div>
+                <pre class="bg-slate-950 text-indigo-200 p-3 rounded-xl border border-slate-800 text-xs leading-relaxed whitespace-pre-wrap overflow-x-auto code-font shadow-inner" id="pw-code-snippet">// Playwright code for current view will appear here</pre>
+                
+                <div class="bg-indigo-950/40 border border-indigo-900/60 rounded-lg p-3 text-indigo-300 text-xs space-y-1">
+                    <p class="font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-circle-info"></i> Automation Tip:
+                    </p>
+                    <p id="pw-tip-text">Playwright prefers <code class="bg-slate-900 px-1 rounded text-amber-300">getByRole()</code> or <code class="bg-slate-900 px-1 rounded text-amber-300">getByTestId()</code> locators for robust element targeting.</p>
+                </div>
+            </div>
+
+            <!-- Tab Content: Selectors -->
+            <div id="tab-content-selectors" class="hidden space-y-2">
+                <h3 class="text-slate-300 font-semibold mb-2">Available testids on Screen:</h3>
+                <div id="pw-selectors-list" class="space-y-1.5">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Tab Content: Presets -->
+            <div id="tab-content-presets" class="hidden space-y-3">
+                <h3 class="text-slate-300 font-semibold mb-2">Simulate Playwright Automation:</h3>
+                <p class="text-slate-400 text-[11px] mb-2">Click these presets to instantly fill inputs or navigate through test flows automatically.</p>
+                <button onclick="runPreset('fill_login')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 p-2 rounded-lg text-left transition flex items-center justify-between">
+                    <span><i class="fa-solid fa-key text-amber-400 mr-2"></i> Auto-Fill Valid Login</span>
+                    <i class="fa-solid fa-arrow-right text-xs text-slate-400"></i>
+                </button>
+                <button onclick="runPreset('solve_quiz')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 p-2 rounded-lg text-left transition flex items-center justify-between">
+                    <span><i class="fa-solid fa-check-double text-emerald-400 mr-2"></i> Auto-Complete Quiz (100%)</span>
+                    <i class="fa-solid fa-arrow-right text-xs text-slate-400"></i>
+                </button>
+                <button onclick="runPreset('fail_quiz')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 p-2 rounded-lg text-left transition flex items-center justify-between">
+                    <span><i class="fa-solid fa-xmark text-rose-400 mr-2"></i> Auto-Trigger Incorrect Answer</span>
+                    <i class="fa-solid fa-arrow-right text-xs text-slate-400"></i>
+                </button>
+                <button onclick="runPreset('reset_all')" class="w-full bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/60 p-2 rounded-lg text-left transition flex items-center justify-between mt-4">
+                    <span><i class="fa-solid fa-rotate-left mr-2"></i> Reset Application State</span>
+                    <i class="fa-solid fa-arrow-right text-xs text-rose-400"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="p-3 bg-slate-950 border-t border-slate-800 text-center text-[10px] text-slate-500">
+            Playwright Mock UI Framework &bull; Designed for E2E Testing
+        </div>
+    </aside>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 left-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <script>
+        const AppState = {
+            user: {
+                loggedIn: false,
+                username: '',
+                studyLocation: 'School Library'
+            },
+            currentHash: '#login',
+            quiz: {
+                courseId: 'math101',
+                courseTitle: 'Algebra Fundamentals - Unit 4',
+                currentStepIndex: 0, // 0: Slide, 1: Q1, 2: Q2, 3: Q3, 4: Results
+                answers: {}, // { 'q1': 'B', 'q2': '4', 'q3': 'C' }
+                score: 0,
+                completed: false
+            },
+            activeFeedback: null, // { isCorrect: boolean, title: string, explanation: string, nextHash: string }
+            inspectorOpen: false,
+            inspectorTab: 'snippets'
+        };
+
+        // Questions Data Set
+        const QuestionsData = [
+            {
+                id: 'q1',
+                code: 'MTH-101',
+                type: 'multiple-choice',
+                title: 'Linear Equations Solving',
+                calculatorNotice: true,
+                questionText: 'Solve for x in the following algebraic equation: 3x + 15 = 45.',
+                instructions: 'Select the correct numerical answer from the options below.',
+                options: [
+                    { id: 'opt-a', label: 'A', text: 'x = 5' },
+                    { id: 'opt-b', label: 'B', text: 'x = 10', correct: true },
+                    { id: 'opt-c', label: 'C', text: 'x = 15' },
+                    { id: 'opt-d', label: 'D', text: 'x = 20' }
+                ],
+                explanation: 'Subtract 15 from both sides: 3x = 30. Then divide both sides by 3 to get x = 10.'
+            },
+            {
+                id: 'q2',
+                code: 'MTH-102',
+                type: 'short-answer',
+                title: 'Parallel Line Slopes',
+                calculatorNotice: false,
+                questionText: 'What is the slope of any line that is strictly parallel to y = 4x - 7?',
+                instructions: 'Enter your answer as a single integer number or word.',
+                placeholder: 'e.g., 4 or four',
+                correctAnswers: ['4', 'four'],
+                explanation: 'Parallel lines always possess identical slopes. The slope of y = 4x - 7 is m = 4.'
+            },
+            {
+                id: 'q3',
+                code: 'MTH-103',
+                type: 'multiple-choice',
+                title: 'Algebraic Properties',
+                calculatorNotice: false,
+                questionText: 'Which algebraic law or property is explicitly demonstrated by the statement: a(b + c) = ab + ac?',
+                instructions: 'Select one property from the list.',
+                options: [
+                    { id: 'opt-a', label: 'A', text: 'Commutative Property of Multiplication' },
+                    { id: 'opt-b', label: 'B', text: 'Associative Property of Addition' },
+                    { id: 'opt-c', label: 'C', text: 'Distributive Property', correct: true },
+                    { id: 'opt-d', label: 'D', text: 'Identity Property of Multiplication' }
+                ],
+                explanation: 'The Distributive Property allows you to multiply a sum by multiplying each addend separately.'
+            }
+        ];
+
+        function initRouter() {
+            window.addEventListener('hashchange', handleRoute);
+            
+            // Sync location select dropdown
+            const locSelect = document.getElementById('study-location-select');
+            locSelect.addEventListener('change', (e) => {
+                AppState.user.studyLocation = e.target.value;
+                updateInspectorData();
+                showToast(`Study location set to: ${e.target.value}`, 'info');
+                // Re-render current view if on dashboard
+                if (location.hash === '#dashboard' || location.hash === '') {
+                    renderDashboard();
+                }
+            });
+
+            // Inspector drawer buttons
+            document.getElementById('toggle-inspector-btn').addEventListener('click', toggleInspector);
+            document.getElementById('close-drawer-btn').addEventListener('click', toggleInspector);
+
+            // Set initial hash if empty
+            if (!location.hash) {
+                location.hash = '#login';
+            } else {
+                handleRoute();
+            }
+        }
+
+        function handleRoute() {
+            const hash = location.hash || '#login';
+            AppState.currentHash = hash;
+
+            // Route guard for non-logged in users
+            if (!AppState.user.loggedIn && hash !== '#login') {
+                location.hash = '#login';
+                showToast('Please log in first to access the academy portal.', 'warning');
+                return;
+            }
+
+            // Redirect if logged in and trying to view login page
+            if (AppState.user.loggedIn && hash === '#login') {
+                location.hash = '#dashboard';
+                return;
+            }
+
+            // Route matching
+            const viewport = document.getElementById('app-viewport');
+            viewport.innerHTML = ''; // clear
+
+            if (hash === '#login') {
+                renderLoginView();
+            } else if (hash === '#dashboard') {
+                renderDashboard();
+            } else if (hash === '#academy') {
+                renderAcademyView();
+            } else if (hash === '#lesson-slide') {
+                renderLessonSlideView();
+            } else if (hash === '#question-1') {
+                renderQuestionView(0);
+            } else if (hash === '#question-2') {
+                renderQuestionView(1);
+            } else if (hash === '#question-3') {
+                renderQuestionView(2);
+            } else if (hash.startsWith('#feedback-')) {
+                const qIdx = parseInt(hash.replace('#feedback-', '')) - 1;
+                renderFeedbackView(qIdx);
+            } else if (hash === '#quiz-results') {
+                renderQuizResultsView();
+            } else {
+                // Fallback to dashboard
+                renderDashboard();
+            }
+
+            updateLogoutButtonVisibility();
+            updateInspectorData();
+            announceToScreenReader(`Navigated to view: ${hash.replace('#', '')}`);
+        }
+
+        function renderLoginView() {
+            const viewport = document.getElementById('app-viewport');
+            viewport.innerHTML = `
+                <div class="max-w-md w-full mx-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden p-6 sm:p-8 space-y-6">
+                    <div class="text-center space-y-2">
+                        <div class="inline-flex p-3 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 mb-1">
+                            <i class="fa-solid fa-user-shield text-2xl"></i>
+                        </div>
+                        <h1 class="text-2xl font-bold text-white tracking-tight">Student Portal Login</h1>
+                        <p class="text-slate-400 text-sm">Enter your test credentials to enter the academy.</p>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4" aria-label="Student Portal Login Form">
+                        <div>
+                            <label for="username" class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">
+                                Username <span class="text-rose-400">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                                    <i class="fa-solid fa-user text-xs"></i>
+                                </span>
+                                <input type="text" id="username" name="username" data-testid="username-input" required placeholder="e.g. alex_student" 
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus-visible-ring transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="password" class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">
+                                Password <span class="text-rose-400">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                                    <i class="fa-solid fa-lock text-xs"></i>
+                                </span>
+                                <input type="password" id="password" name="password" data-testid="password-input" required placeholder="••••••••" 
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus-visible-ring transition">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="login-submit-btn" data-testid="login-submit" 
+                            class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/25 transition duration-150 focus-visible-ring flex items-center justify-center gap-2">
+                            <span>Log In to Dashboard</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </form>
+
+                    <!-- Mock Credentials Quick Autofill Box -->
+                    <div class="pt-4 border-t border-slate-800/80">
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                            <span>Playwright Quick Fill:</span>
+                            <span class="text-indigo-400 font-mono">Any text works</span>
+                        </div>
+                        <button type="button" onclick="autofillLogin('student_alex', 'pass123')" data-testid="autofill-btn" 
+                            class="w-full text-xs bg-slate-800/60 hover:bg-slate-800 text-slate-300 border border-slate-700/60 py-2 rounded-lg transition flex items-center justify-center gap-2 font-mono">
+                            <i class="fa-solid fa-bolt text-amber-400"></i> Auto-fill Sample Student
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function autofillLogin(user, pass) {
+            const userInput = document.getElementById('username');
+            const passInput = document.getElementById('password');
+            if (userInput) userInput.value = user;
+            if (passInput) passInput.value = pass;
+            showToast('Credentials filled for testing.', 'info');
+        }
+
+        function handleLoginSubmit(event) {
+            event.preventDefault();
+            const userInput = document.getElementById('username').value.trim();
+            const passInput = document.getElementById('password').value.trim();
+
+            if (!userInput || !passInput) {
+                showToast('Please provide both username and password.', 'error');
+                return;
+            }
+
+            AppState.user.loggedIn = true;
+            AppState.user.username = userInput;
+            showToast(`Welcome back, ${userInput}!`, 'success');
+            location.hash = '#dashboard';
+        }
+
+        function renderDashboard() {
+            const viewport = document.getElementById('app-viewport');
+            viewport.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Welcome Hero Banner -->
+                    <div class="bg-gradient-to-r from-indigo-900/60 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+                        <div class="relative z-10 space-y-2">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-700/50 text-indigo-300 text-xs font-mono">
+                                <i class="fa-solid fa-school text-indigo-400"></i> Active Study Hub: <strong id="hero-location" class="text-amber-300 font-semibold">${AppState.user.studyLocation}</strong>
+                            </div>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Student Learning Dashboard</h1>
+                            <p class="text-slate-300 text-sm max-w-2xl">
+                                Welcome back, <strong class="text-indigo-400 font-semibold">${AppState.user.username || 'Student'}</strong>! Select an action below or navigate directly into your course study slides and quizzes.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Action Hub (Contextual Buttons specified in spec) -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-lg">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-compass text-indigo-400"></i> Quick Navigation Actions
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <button onclick="location.hash='#academy'" data-testid="dashboard-start-lesson" 
+                                class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium p-4 rounded-xl border border-indigo-400/30 transition flex flex-col items-start space-y-2 shadow-md focus-visible-ring group">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white group-hover:scale-110 transition">
+                                    <i class="fa-solid fa-play"></i>
+                                </div>
+                                <span class="font-bold text-base">Start Lesson</span>
+                                <span class="text-xs text-indigo-200">Begin math & science slides</span>
+                            </button>
+
+                            <button onclick="location.hash='#question-1'" data-testid="dashboard-start-quiz" 
+                                class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium p-4 rounded-xl border border-emerald-400/30 transition flex flex-col items-start space-y-2 shadow-md focus-visible-ring group">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white group-hover:scale-110 transition">
+                                    <i class="fa-solid fa-file-pen"></i>
+                                </div>
+                                <span class="font-bold text-base">Start Quiz</span>
+                                <span class="text-xs text-emerald-200">Jump directly to Q1</span>
+                            </button>
+
+                            <button onclick="location.hash='#question-2'" data-testid="dashboard-next-lesson" 
+                                class="bg-amber-600 hover:bg-amber-500 text-white font-medium p-4 rounded-xl border border-amber-400/30 transition flex flex-col items-start space-y-2 shadow-md focus-visible-ring group">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white group-hover:scale-110 transition">
+                                    <i class="fa-solid fa-forward"></i>
+                                </div>
+                                <span class="font-bold text-base">Next Lesson</span>
+                                <span class="text-xs text-amber-100">Skip to short answer slide</span>
+                            </button>
+
+                            <button onclick="location.hash='#lesson-slide'" data-testid="dashboard-continue" 
+                                class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium p-4 rounded-xl border border-slate-700 transition flex flex-col items-start space-y-2 shadow-md focus-visible-ring group">
+                                <div class="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center text-slate-300 group-hover:scale-110 transition">
+                                    <i class="fa-solid fa-angles-right"></i>
+                                </div>
+                                <span class="font-bold text-base">Continue</span>
+                                <span class="text-xs text-slate-400">Resume saved progress</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Available Learning Modules Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Module Card 1 -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 hover:border-indigo-500/50 transition">
+                            <div class="flex justify-between items-start">
+                                <span class="bg-indigo-950 text-indigo-300 border border-indigo-800 text-xs px-2.5 py-1 rounded-full font-mono">MATH-101</span>
+                                <span class="text-emerald-400 text-xs font-semibold flex items-center gap-1">
+                                    <i class="fa-solid fa-circle-check"></i> Active Unit
+                                </span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">Algebra Fundamentals</h3>
+                            <p class="text-slate-400 text-sm">Linear equations, slope formula, and fundamental distributive property rules.</p>
+                            <div class="pt-2 flex items-center justify-between">
+                                <span class="text-xs text-slate-500 font-mono">3 Assessment Items</span>
+                                <a href="#lesson-slide" data-testid="open-math-module" class="text-xs font-semibold bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600 hover:text-white px-3.5 py-2 rounded-xl transition focus-visible-ring flex items-center gap-1.5">
+                                    <span>Enter Module</span>
+                                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Module Card 2 -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 opacity-75">
+                            <div class="flex justify-between items-start">
+                                <span class="bg-slate-800 text-slate-400 border border-slate-700 text-xs px-2.5 py-1 rounded-full font-mono">BIO-201</span>
+                                <span class="text-slate-500 text-xs font-semibold">Upcoming</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-200">Ecosystems & Trophic Levels</h3>
+                            <p class="text-slate-400 text-sm">Energy flow, producers, consumers, and food web dynamics in biology.</p>
+                            <div class="pt-2 flex items-center justify-between">
+                                <span class="text-xs text-slate-500 font-mono">Locked</span>
+                                <button disabled class="text-xs font-semibold bg-slate-800 text-slate-500 px-3.5 py-2 rounded-xl cursor-not-allowed">
+                                    Prerequisite Required
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAcademyView() {
+            const viewport = document.getElementById('app-viewport');
+            viewport.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                        <div>
+                            <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-book-open text-indigo-400"></i> Academy Course Directory
+                            </h1>
+                            <p class="text-slate-400 text-sm">Select a learning unit to launch slides and assessment quizzes.</p>
+                        </div>
+                        <a href="#dashboard" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-left"></i> Return to Dashboard
+                        </a>
+                    </div>
+
+                    <!-- Courses List -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                        <div class="p-6 space-y-6">
+                            <!-- Course 1 -->
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 p-5 bg-slate-950/60 rounded-xl border border-slate-800 hover:border-indigo-500/40 transition">
+                                <div class="space-y-2 max-w-xl">
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-indigo-950 text-indigo-300 text-xs px-2.5 py-0.5 rounded border border-indigo-800 font-mono">Algebra 101</span>
+                                        <span class="text-xs text-amber-400 font-medium"><i class="fa-solid fa-star"></i> Recommended</span>
+                                    </div>
+                                    <h2 class="text-lg font-bold text-white">Unit 4: Equations & Linear Graphs</h2>
+                                    <p class="text-xs text-slate-400">Master solving 1-variable algebraic expressions and identifying slope properties on coordinate planes.</p>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-2 shrink-0">
+                                    <a href="#lesson-slide" data-testid="start-lesson" 
+                                        class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-md focus-visible-ring text-center flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-play"></i> Start Lesson
+                                    </a>
+                                    <a href="#question-1" data-testid="start-quiz" 
+                                        class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition focus-visible-ring text-center flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-file-pen text-emerald-400"></i> Start Quiz Directly
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Course 2 -->
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 p-5 bg-slate-950/40 rounded-xl border border-slate-800/80">
+                                <div class="space-y-2 max-w-xl">
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-slate-800 text-slate-400 text-xs px-2.5 py-0.5 rounded border border-slate-700 font-mono">Geometry 202</span>
+                                    </div>
+                                    <h2 class="text-lg font-bold text-slate-300">Unit 2: Pythagorean Theorem</h2>
+                                    <p class="text-xs text-slate-500">Calculate hypotenuse lengths and right triangle properties.</p>
+                                </div>
+                                <div>
+                                    <button disabled class="bg-slate-800/50 text-slate-500 border border-slate-800 text-xs font-semibold px-4 py-2.5 rounded-xl cursor-not-allowed">
+                                        Locked
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLessonSlideView() {
+            const viewport = document.getElementById('app-viewport');
+            viewport.innerHTML = `
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <!-- Lesson Slide Header -->
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-mono">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap text-indigo-400"></i> Lesson Slide 1 of 1
+                        </span>
+                        <span>Module: Algebra Fundamentals</span>
+                    </div>
+
+                    <!-- Slide Content Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+                        <div class="border-b border-slate-800 pb-4">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Unit Overview</span>
+                            <h1 class="text-2xl font-bold text-white mt-1">Solving Linear Equations & Slope Properties</h1>
+                        </div>
+
+                        <div class="space-y-4 text-sm text-slate-300 leading-relaxed">
+                            <p>
+                                In this lesson, you will practice multi-step linear equation operations and verify line slope rules.
+                            </p>
+                            <div class="bg-slate-950 border border-indigo-900/50 rounded-xl p-4 space-y-2">
+                                <h2 class="text-xs font-bold text-indigo-300 font-mono uppercase tracking-wide">Key Formula Reminder:</h2>
+                                <p class="text-sm font-mono text-amber-300 bg-slate-900/80 p-2 rounded border border-slate-800">
+                                    Slope-Intercept Form: y = mx + b
+                                </p>
+                                <p class="text-xs text-slate-400">
+                                    Where <code class="text-indigo-300">m</code> represents the slope coefficient and <code class="text-indigo-300">b</code> represents the y-intercept.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Action Controls -->
+                        <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                            <a href="#dashboard" class="text-xs text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-800 transition">
+                                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+                            </a>
+
+                            <div class="flex items-center gap-3">
+                                <a href="#question-1" id="start-quiz-btn" data-testid="start-quiz-btn" 
+                                    class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/20 transition focus-visible-ring flex items-center gap-2">
+                                    <span>Start Quiz</span>
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderQuestionView(qIndex) {
+            const question = QuestionsData[qIndex];
+            if (!question) {
+                location.hash = '#quiz-results';
+                return;
+            }
+
+            const viewport = document.getElementById('app-viewport');
+            const totalQ = QuestionsData.length;
+
+            viewport.innerHTML = `
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <!-- Progress Bar & Question Header Badge -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+                            <span class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                                Question ${qIndex + 1} of ${totalQ}
+                            </span>
+                            <span class="bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-indigo-300">
+                                Code: ${question.code}
+                            </span>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-indigo-500 h-full transition-all duration-300" style="width: ${((qIndex + 1) / totalQ) * 100}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Calculator Warning Notice (Requirement 9 & 4) -->
+                    ${question.calculatorNotice ? `
+                        <div role="alert" class="bg-amber-950/60 border border-amber-600/50 text-amber-200 px-4 py-3 rounded-xl text-xs flex items-center gap-3 shadow-md">
+                            <i class="fa-solid fa-calculator text-amber-400 text-base shrink-0"></i>
+                            <div>
+                                <span class="font-bold block">Important Notice:</span>
+                                <span>Do not use a calculator for this section. Work out answers manually.</span>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Question Card Container -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+                        <!-- Title & Question Text -->
+                        <div class="space-y-2">
+                            <span class="text-xs font-semibold text-indigo-400 uppercase tracking-wider font-mono">${question.title}</span>
+                            <h1 class="text-xl sm:text-2xl font-bold text-white leading-snug">${question.questionText}</h1>
+                            <p class="text-xs text-slate-400">${question.instructions}</p>
+                        </div>
+
+                        <!-- Form Controls based on type -->
+                        <form id="question-form" onsubmit="handleQuestionSubmit(event, ${qIndex})" class="space-y-6" aria-label="${question.title} Answer Form">
+                            ${question.type === 'multiple-choice' ? renderMultipleChoiceInputs(question) : renderShortAnswerInputs(question)}
+
+                            <!-- Actions Row -->
+                            <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                                <button type="button" onclick="location.hash='#dashboard'" class="text-xs text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-800 transition">
+                                    Cancel & Return
+                                </button>
+
+                                <button type="submit" id="submit-answer-btn" data-testid="submit-answer-btn" 
+                                    class="bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-sm font-semibold px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/25 transition focus-visible-ring flex items-center gap-2">
+                                    <span>Submit</span>
+                                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* Multiple Choice Fieldset Generator */
+        function renderMultipleChoiceInputs(question) {
+            const savedAns = AppState.quiz.answers[question.id] || '';
+
+            return `
+                <fieldset class="space-y-3">
+                    <legend class="sr-only">Select one answer option for ${question.title}</legend>
+                    <div class="space-y-2.5">
+                        ${question.options.map((opt) => {
+                            const isChecked = savedAns === opt.label;
+                            return `
+                                <label for="choice-${opt.label}" 
+                                    class="flex items-center p-3.5 sm:p-4 rounded-xl border border-slate-800 bg-slate-950/70 hover:bg-slate-800/80 hover:border-slate-700 cursor-pointer transition focus-within:ring-2 focus-within:ring-indigo-500">
+                                    <input type="radio" 
+                                        id="choice-${opt.label}" 
+                                        name="mcq_option" 
+                                        value="${opt.label}" 
+                                        data-testid="choice-${opt.label}"
+                                        ${isChecked ? 'checked' : ''} 
+                                        class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-700 focus:ring-indigo-500 focus:ring-offset-slate-900">
+                                    <span class="ml-3 font-semibold text-xs sm:text-sm text-indigo-300 w-6 font-mono">${opt.label}.</span>
+                                    <span class="text-sm text-slate-200 font-medium">${opt.text}</span>
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                </fieldset>
+            `;
+        }
+
+        /* Short Answer Generator */
+        function renderShortAnswerInputs(question) {
+            const savedAns = AppState.quiz.answers[question.id] || '';
+
+            return `
+                <div class="space-y-3">
+                    <label for="short-answer-input" class="block text-xs font-medium text-slate-300 uppercase tracking-wider">
+                        Your Answer <span class="text-rose-400">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text" 
+                            id="short-answer-input" 
+                            name="short_answer" 
+                            data-testid="short-answer-input" 
+                            value="${savedAns}"
+                            placeholder="${question.placeholder || 'Type your answer here...'}" 
+                            required 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus-visible-ring transition font-mono">
+                    </div>
+                    <p class="text-xs text-slate-500">Accepted formats: single number, word, or numeric phrase.</p>
+                </div>
+            `;
+        }
+
+        /* Question Submission Logic */
+        function handleQuestionSubmit(event, qIndex) {
+            event.preventDefault();
+            const question = QuestionsData[qIndex];
+            let userAns = '';
+
+            if (question.type === 'multiple-choice') {
+                const selected = document.querySelector('input[name="mcq_option"]:checked');
+                if (!selected) {
+                    showToast('Please select an option before submitting.', 'warning');
+                    return;
+                }
+                userAns = selected.value;
+            } else {
+                const input = document.getElementById('short-answer-input');
+                if (!input || !input.value.trim()) {
+                    showToast('Please enter an answer.', 'warning');
+                    return;
+                }
+                userAns = input.value.trim();
+            }
+
+            // Save answer
+            AppState.quiz.answers[question.id] = userAns;
+
+            // Evaluate correctness
+            let isCorrect = false;
+            if (question.type === 'multiple-choice') {
+                const correctOpt = question.options.find(o => o.correct);
+                isCorrect = (correctOpt && correctOpt.label === userAns);
+            } else {
+                isCorrect = question.correctAnswers.some(ans => ans.toLowerCase() === userAns.toLowerCase());
+            }
+
+            // Save active feedback state
+            AppState.activeFeedback = {
+                qIndex: qIndex,
+                isCorrect: isCorrect,
+                userAnswer: userAns,
+                question: question,
+                nextHash: (qIndex + 1 < QuestionsData.length) ? `#question-${qIndex + 2}` : '#quiz-results'
+            };
+
+            // Route to feedback view
+            location.hash = `#feedback-${qIndex + 1}`;
+        }
+
+        function renderFeedbackView(qIndex) {
+            const fb = AppState.activeFeedback;
+            const question = QuestionsData[qIndex];
+
+            // Fallback if accessed directly
+            if (!fb || !question) {
+                location.hash = `#question-${qIndex + 1}`;
+                return;
+            }
+
+            const viewport = document.getElementById('app-viewport');
+            const isCorrect = fb.isCorrect;
+
+            viewport.innerHTML = `
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <!-- Feedback Card Header -->
+                    <div class="bg-slate-900 border ${isCorrect ? 'border-emerald-500/50 shadow-emerald-950/30' : 'border-rose-500/50 shadow-rose-950/30'} rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
+                        
+                        <!-- Status Badge Overlay -->
+                        <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+                            <div class="w-12 h-12 rounded-2xl ${isCorrect ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'} flex items-center justify-center text-2xl shrink-0">
+                                <i class="fa-solid ${isCorrect ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
+                            </div>
+                            <div>
+                                <span data-testid="feedback-status" class="text-lg font-bold ${isCorrect ? 'text-emerald-400' : 'text-rose-400'} block">
+                                    ${isCorrect ? 'Correct!' : 'Incorrect'}
+                                </span>
+                                <span class="text-xs text-slate-400">Answer processed for Question ${qIndex + 1} (${question.code})</span>
+                            </div>
+                        </div>
+
+                        <!-- Details & Explanation -->
+                        <div class="space-y-4">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-sm">
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-slate-400">Submitted Answer:</span>
+                                    <span class="font-mono font-bold ${isCorrect ? 'text-emerald-300' : 'text-rose-300'} bg-slate-900 px-2.5 py-1 rounded border border-slate-800">${fb.userAnswer}</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-indigo-950/30 border border-indigo-900/50 p-4 rounded-xl space-y-1.5">
+                                <h3 class="text-xs font-bold text-indigo-300 uppercase tracking-wide font-mono flex items-center gap-1.5">
+                                    <i class="fa-solid fa-lightbulb"></i> Explanation
+                                </h3>
+                                <p class="text-sm text-slate-300 leading-relaxed">${question.explanation}</p>
+                            </div>
+                        </div>
+
+                        <!-- Contextual Progression Buttons (Requirement 6 & 8) -->
+                        <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                            <a href="#dashboard" class="text-xs text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-800 transition">
+                                Dashboard
+                            </a>
+
+                            <div class="flex items-center gap-2">
+                                <a href="${fb.nextHash}" id="continue-btn" data-testid="continue-btn" 
+                                    class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-600/25 transition focus-visible-ring flex items-center gap-2">
+                                    <span>${fb.nextHash === '#quiz-results' ? 'View Results' : 'Continue / Go On'}</span>
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderQuizResultsView() {
+            const viewport = document.getElementById('app-viewport');
+            
+            // Compute total score
+            let correctCount = 0;
+            QuestionsData.forEach((q) => {
+                const userAns = AppState.quiz.answers[q.id];
+                if (q.type === 'multiple-choice') {
+                    const correctOpt = q.options.find(o => o.correct);
+                    if (correctOpt && correctOpt.label === userAns) correctCount++;
+                } else {
+                    if (q.correctAnswers.some(ans => ans.toLowerCase() === (userAns || '').toLowerCase())) correctCount++;
+                }
+            });
+
+            const total = QuestionsData.length;
+            const percentage = Math.round((correctCount / total) * 100);
+
+            viewport.innerHTML = `
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <!-- Results Card Container -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+                        
+                        <!-- Header -->
+                        <div class="text-center space-y-3 border-b border-slate-800 pb-6">
+                            <div class="inline-flex p-4 rounded-full bg-indigo-600/20 border border-indigo-500/30 text-indigo-400">
+                                <i class="fa-solid fa-trophy text-3xl"></i>
+                            </div>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Quiz Complete!</h1>
+                            <p class="text-slate-400 text-sm">Algebra Fundamentals Assessment Results</p>
+                        </div>
+
+                        <!-- Score Gauge Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <span class="text-xs text-slate-400 block font-mono">Score Percentage</span>
+                                <span class="text-3xl font-bold ${percentage >= 70 ? 'text-emerald-400' : 'text-amber-400'}">${percentage}%</span>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <span class="text-xs text-slate-400 block font-mono">Correct Answers</span>
+                                <span class="text-3xl font-bold text-emerald-400">${correctCount} / ${total}</span>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                <span class="text-xs text-slate-400 block font-mono">Incorrect Answers</span>
+                                <span class="text-3xl font-bold text-rose-400">${total - correctCount}</span>
+                            </div>
+                        </div>
+
+                        <!-- Breakdown List -->
+                        <div class="space-y-3">
+                            <h2 class="text-sm font-bold text-slate-200 uppercase tracking-wider font-mono">Question Breakdown</h2>
+                            <div class="space-y-2">
+                                ${QuestionsData.map((q, idx) => {
+                                    const uAns = AppState.quiz.answers[q.id] || 'None';
+                                    let qCorrect = false;
+                                    if (q.type === 'multiple-choice') {
+                                        const cOpt = q.options.find(o => o.correct);
+                                        qCorrect = (cOpt && cOpt.label === uAns);
+                                    } else {
+                                        qCorrect = q.correctAnswers.some(ans => ans.toLowerCase() === uAns.toLowerCase());
+                                    }
+
+                                    return `
+                                        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-xs">
+                                            <div class="flex items-center space-x-3">
+                                                <i class="fa-solid ${qCorrect ? 'fa-check text-emerald-400' : 'fa-xmark text-rose-400'} text-base"></i>
+                                                <span class="text-slate-300 font-medium">Q${idx + 1}: ${q.title}</span>
+                                            </div>
+                                            <span class="font-mono text-slate-400">Answer: <strong class="text-slate-200">${uAns}</strong></span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Navigation Actions (Requirement 7 & 8) -->
+                        <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                            <a href="#academy" id="return-academy-btn" data-testid="return-academy-btn" 
+                                class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition focus-visible-ring flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> Return to Academy
+                            </a>
+
+                            <div class="flex items-center gap-3">
+                                <button onclick="handleQuizSubmitFinish()" id="submit-quiz-btn" data-testid="submit-quiz-btn" 
+                                    class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-md focus-visible-ring flex items-center gap-2">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Submit Quiz
+                                </button>
+                                <a href="#dashboard" id="next-lesson-btn" data-testid="next-lesson-btn" 
+                                    class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-md focus-visible-ring flex items-center gap-2">
+                                    <span>Next Lesson</span>
+                                    <i class="fa-solid fa-forward"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleQuizSubmitFinish() {
+            showToast('Quiz results successfully recorded to Academy ledger!', 'success');
+        }
+
+        function toggleInspector() {
+            const drawer = document.getElementById('playwright-drawer');
+            AppState.inspectorOpen = !AppState.inspectorOpen;
+            if (AppState.inspectorOpen) {
+                drawer.classList.remove('translate-x-full');
+            } else {
+                drawer.classList.add('translate-x-full');
+            }
+        }
+
+        function setHelperTab(tabName) {
+            AppState.inspectorTab = tabName;
+            ['snippets', 'selectors', 'presets'].forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                const content = document.getElementById(`tab-content-${t}`);
+                if (t === tabName) {
+                    btn.className = "flex-1 py-2.5 px-3 border-b-2 border-indigo-500 text-indigo-400 font-semibold focus:outline-none";
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = "flex-1 py-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 focus:outline-none";
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        function updateInspectorData() {
+            const hash = AppState.currentHash || '#login';
+            document.getElementById('pw-current-hash').textContent = hash;
+            document.getElementById('pw-location-state').textContent = AppState.user.studyLocation;
+
+            let stateName = 'UNKNOWN';
+            let codeSnippet = '';
+            let tipText = '';
+
+            if (hash === '#login') {
+                stateName = 'LOGIN_SCREEN';
+                codeSnippet = `// 1. Fill login credentials
+await page.getByTestId('username-input').fill('alex_student');
+await page.getByTestId('password-input').fill('password123');
+
+// 2. Click Login button
+await page.getByTestId('login-submit').click();
+
+// 3. Verify URL navigation
+await expect(page).toHaveURL(/.*#dashboard/);`;
+                tipText = "Target user input forms using testids or role 'textbox'.";
+            } else if (hash === '#dashboard') {
+                stateName = 'DASHBOARD_STATE';
+                codeSnippet = `// Select study location from dropdown
+await page.getByTestId('study-location-select')
+  .selectOption('${AppState.user.studyLocation}');
+
+// Click Start Lesson
+await page.getByTestId('dashboard-start-lesson').click();`;
+                tipText = "Verify elements present on dashboard after successful authentication.";
+            } else if (hash === '#academy') {
+                stateName = 'ACADEMY_STATE';
+                codeSnippet = `// Navigate through Academy links
+await page.getByRole('link', { name: 'Academy' }).click();
+await page.getByTestId('start-lesson').click();`;
+                tipText = "Use getByRole('link') for accessible nav targets.";
+            } else if (hash === '#lesson-slide') {
+                stateName = 'LESSON_STATE';
+                codeSnippet = `// Read slide content and start quiz
+await page.getByTestId('start-quiz-btn').click();`;
+                tipText = "Assert slide title visibility using getByRole('heading').";
+            } else if (hash === '#question-1') {
+                stateName = 'MULTIPLE_CHOICE_STATE';
+                codeSnippet = `// Select Radio Answer option 'B'
+await page.getByTestId('choice-B').check();
+
+// Submit Answer
+await page.getByTestId('submit-answer-btn').click();`;
+                tipText = "Radio buttons are targetable using getByRole('radio') or getByTestId().";
+            } else if (hash === '#question-2') {
+                stateName = 'SHORT_ANSWER_STATE';
+                codeSnippet = `// Enter numerical answer in textbox
+await page.getByTestId('short-answer-input').fill('4');
+
+// Submit Answer
+await page.getByTestId('submit-answer-btn').click();`;
+                tipText = "Use fill() for short answer text boxes.";
+            } else if (hash === '#question-3') {
+                stateName = 'MULTIPLE_CHOICE_STATE';
+                codeSnippet = `// Select Distributive Property option 'C'
+await page.getByTestId('choice-C').check();
+await page.getByTestId('submit-answer-btn').click();`;
+                tipText = "Always verify choice selection state before submitting.";
+            } else if (hash.startsWith('#feedback-')) {
+                stateName = 'FEEDBACK_STATE';
+                codeSnippet = `// Assert correct/incorrect feedback state
+await expect(page.getByTestId('feedback-status')).toBeVisible();
+
+// Click Continue button
+await page.getByTestId('continue-btn').click();`;
+                tipText = "Use expect(locator).toBeVisible() to verify screen overlays.";
+            } else if (hash === '#quiz-results') {
+                stateName = 'RESULTS_STATE';
+                codeSnippet = `// Verify completion & score
+await expect(page.getByRole('heading', { name: 'Quiz Complete!' })).toBeVisible();
+
+// Finish Quiz or return
+await page.getByTestId('submit-quiz-btn').click();`;
+                tipText = "Assert total percentage score text on final results view.";
+            }
+
+            document.getElementById('pw-current-state').textContent = stateName;
+            document.getElementById('pw-code-snippet').textContent = codeSnippet;
+            document.getElementById('pw-tip-text').textContent = tipText;
+
+            populateSelectorsList();
+        }
+
+        function populateSelectorsList() {
+            const listEl = document.getElementById('pw-selectors-list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+
+            const testIdElements = document.querySelectorAll('[data-testid]');
+            if (testIdElements.length === 0) {
+                listEl.innerHTML = '<p class="text-slate-500">No testids found on active screen.</p>';
+                return;
+            }
+
+            testIdElements.forEach(el => {
+                const testId = el.getAttribute('data-testid');
+                const tag = el.tagName.toLowerCase();
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800 text-[11px]';
+                item.innerHTML = `
+                    <span class="text-indigo-300 font-mono">data-testid="${testId}"</span>
+                    <span class="text-slate-500 font-mono">${tag}</span>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        function copySnippetText() {
+            const snippet = document.getElementById('pw-code-snippet').textContent;
+            
+            // Clipboard copy with iframe fallback
+            const tempInput = document.createElement('textarea');
+            tempInput.value = snippet;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            const copyBtnText = document.getElementById('copy-btn-text');
+            copyBtnText.textContent = 'Copied!';
+            setTimeout(() => {
+                copyBtnText.textContent = 'Copy Code';
+            }, 2000);
+        }
+
+        /* Preset Automation Trigger Runner */
+        function runPreset(type) {
+            if (type === 'fill_login') {
+                location.hash = '#login';
+                setTimeout(() => {
+                    autofillLogin('alex_playwright', 'secret123');
+                    handleLoginSubmit(new Event('submit'));
+                }, 100);
+            } else if (type === 'solve_quiz') {
+                AppState.user.loggedIn = true;
+                AppState.quiz.answers = { 'q1': 'B', 'q2': '4', 'q3': 'C' };
+                location.hash = '#quiz-results';
+                showToast('Quiz solved with 100% score preset!', 'success');
+            } else if (type === 'fail_quiz') {
+                AppState.user.loggedIn = true;
+                AppState.quiz.answers = { 'q1': 'A', 'q2': '999', 'q3': 'A' };
+                location.hash = '#quiz-results';
+                showToast('Quiz answered with incorrect responses.', 'warning');
+            } else if (type === 'reset_all') {
+                AppState.user.loggedIn = false;
+                AppState.user.username = '';
+                AppState.quiz.answers = {};
+                AppState.activeFeedback = null;
+                location.hash = '#login';
+                showToast('Application state reset.', 'info');
+            }
+        }
+
+        /* Toast Helper */
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-slate-800 border-slate-700 text-slate-200';
+            if (type === 'success') bgClass = 'bg-emerald-950 border-emerald-700 text-emerald-200';
+            if (type === 'error') bgClass = 'bg-rose-950 border-rose-700 text-rose-200';
+            if (type === 'warning') bgClass = 'bg-amber-950 border-amber-700 text-amber-200';
+
+            toast.className = `${bgClass} border px-4 py-2.5 rounded-xl shadow-2xl text-xs font-medium flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto`;
+            toast.innerHTML = `
+                <i class="fa-solid fa-circle-info"></i>
+                <span>${msg}</span>
+            `;
+
+            container.appendChild(toast);
+
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            // Auto dismiss
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function updateLogoutButtonVisibility() {
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                if (AppState.user.loggedIn) {
+                    logoutBtn.classList.remove('hidden');
+                    logoutBtn.classList.add('flex');
+                    logoutBtn.onclick = () => runPreset('reset_all');
+                } else {
+                    logoutBtn.classList.add('hidden');
+                    logoutBtn.classList.remove('flex');
+                }
+            }
+        }
+
+        function announceToScreenReader(msg) {
+            const liveRegion = document.getElementById('aria-live-announcer');
+            if (liveRegion) liveRegion.textContent = msg;
+        }
+
+        // Initialize Router on window loading
+        window.addEventListener('DOMContentLoaded', initRouter);
+    </script>
+</body>
+</html>
